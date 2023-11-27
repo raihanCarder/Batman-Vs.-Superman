@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -15,9 +16,12 @@ namespace Summative_Animation
    
         List<Texture2D> cityFrames = new List<Texture2D>();
         List<Texture2D> flyingSuperman = new List<Texture2D>();
-
+        Texture2D introScreenTexture;
         Screen screen;
-        MouseState mouseState;
+        KeyboardState keyboardState;
+        private SoundEffect introSong, endSong;
+        SoundEffectInstance introInstance, endInstance;
+        SpriteFont introText;
         bool fightBegins = false;
         int cityFrameCounter = 0;
         float cityInterval = 0.06f;
@@ -47,7 +51,6 @@ namespace Summative_Animation
             // TODO: Add your initialization logic here
 
             screen = Screen.Intro;
-
             cityTimeStamp = 0;
 
             base.Initialize();
@@ -62,12 +65,19 @@ namespace Summative_Animation
                 cityFrames.Add(Content.Load<Texture2D>($"frame_{i}_delay-0.04s"));
             }
 
-            // TODO: use this.Content to load your game content here
+            introScreenTexture = Content.Load<Texture2D>("BatmanvSuperman");
+            introSong = Content.Load<SoundEffect>("BatmanTrimmed");
+            introInstance = introSong.CreateInstance();
+            introInstance.IsLooped = false;
+            introText = Content.Load<SpriteFont>("DragonFont");
+            //TODO: use this.Content to load your game content here
         }
 
         protected override void Update(GameTime gameTime)
         {
-            mouseState = Mouse.GetState();
+            keyboardState = Keyboard.GetState();
+
+
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -91,12 +101,15 @@ namespace Summative_Animation
             if (screen == Screen.Intro)
             {
                 fightBegins = false;
-                if (mouseState.LeftButton == ButtonState.Pressed)
+                introInstance.Play();
+                if (keyboardState.IsKeyDown(Keys.Space))
                     screen = Screen.BeforeFight;
+
             }
             else if (screen == Screen.BeforeFight)
             {
                 fightBegins = true;
+                introInstance.Stop();
             }
             else if (screen == Screen.Fight)
             {
@@ -121,7 +134,8 @@ namespace Summative_Animation
             _spriteBatch.Begin();
 
             // Add Background Code
-            if (cityFrameCounter < 60)
+
+            if (cityFrameCounter < 60 && fightBegins == true)
             {
                 _spriteBatch.Draw(cityFrames[cityFrameCounter], new Rectangle(0, 0, 900, 500), Color.White);
             }
@@ -134,7 +148,8 @@ namespace Summative_Animation
 
             if (screen == Screen.Intro)
             {
-
+                _spriteBatch.Draw(introScreenTexture, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
+                _spriteBatch.DrawString(introText, "BATMAN Vs. SUPERMAN", new Vector2(190, 200), Color.Red);
             }
             else if (screen == Screen.BeforeFight) 
             { 
