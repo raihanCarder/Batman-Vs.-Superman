@@ -17,7 +17,8 @@ namespace Summative_Animation
         private SpriteBatch _spriteBatch;
    
         List<Texture2D> cityFrames = new List<Texture2D>();
-        List<Texture2D> flyingSuperman = new List<Texture2D>();   
+        List<Texture2D> flyingSuperman = new List<Texture2D>();
+        List<Texture2D> fightingSuperman = new List<Texture2D>();
         Texture2D introScreenTexture;
 
         Texture2D buildingTexture;
@@ -84,6 +85,11 @@ namespace Summative_Animation
                 flyingSuperman.Add(Content.Load<Texture2D>($"FlyingSuperman{i}-removebg-preview"));
             }
 
+            for (int i = 1; i < 11; i++)    // Adds all Flying Superman frames;
+            {
+                fightingSuperman.Add(Content.Load<Texture2D>($"FightingSuperman{i}-removebg-preview"));
+            }
+
             introScreenTexture = Content.Load<Texture2D>("BatmanvSuperman");
             introSong = Content.Load<SoundEffect>("BatmanTrimmed");
             introInstance = introSong.CreateInstance();
@@ -94,7 +100,7 @@ namespace Summative_Animation
             flyingSound = Content.Load<SoundEffect>("FlyingSound");
             flyingSoundInstance = flyingSound.CreateInstance();
             flyingSoundInstance.IsLooped = false;
-            buildingTexture = Content.Load<Texture2D>("Stadium");
+            buildingTexture = Content.Load<Texture2D>("BlackRect2");
             //TODO: use this.Content to load your game content here
         }
 
@@ -180,6 +186,8 @@ namespace Summative_Animation
 
                             if (supermanFrame >= 12)
                             {
+                                supermanFrame = 0;
+                                supermanInterval = 0.1f;
                                 screen = Screen.Fight;
                             }
                         }                     
@@ -190,7 +198,13 @@ namespace Summative_Animation
             }
             else if (screen == Screen.Fight)
             {
+                supermanTime = (float)gameTime.TotalGameTime.TotalSeconds - supermanTimeStamp;
 
+                if (supermanTime > supermanInterval && supermanFrame < 9)
+                {
+                        supermanTimeStamp = (float)gameTime.TotalGameTime.TotalSeconds;
+                        supermanFrame += 1;
+                }
             }
             else if (screen == Screen.Ending)
             {
@@ -240,8 +254,14 @@ namespace Summative_Animation
             }
             else if (screen == Screen.Fight)
             {
-                _spriteBatch.Draw(buildingTexture, new Rectangle(0, 0, 900, 500), Color.White);
+                _spriteBatch.Draw(cityFrames[56], new Rectangle(0, 0, 900, 500), Color.White);
+                _spriteBatch.Draw(buildingTexture, new Rectangle(100, 400, 700, 200), Color.White);
 
+                if (supermanFrame < 10) // Teleport Sequence
+                {
+                    _spriteBatch.Draw(fightingSuperman[supermanFrame], new Vector2(300, 350), Color.White);
+                }
+               
             }
             else if (screen == Screen.Ending)
             { 
