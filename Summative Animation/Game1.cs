@@ -27,7 +27,7 @@ namespace Summative_Animation
         Texture2D endingTexture;
         Screen screen;
         KeyboardState keyboardState;
-        private SoundEffect introSong, endSong, teleportSound, flyingSound, ClapSound, boneCrackSound;
+        private SoundEffect introSong, endSong, teleportSound, flyingSound, ClapSound, boneCrackSound, manScreamSound;
         SoundEffectInstance introInstance, endInstance, flyingSoundInstance;
         SpriteFont introText, endingText, teleportText;
         SpriteFont introInstructions;
@@ -113,15 +113,19 @@ namespace Summative_Animation
             introInstance.IsLooped = false;
             introText = Content.Load<SpriteFont>("DragonFont");
             endingText = Content.Load<SpriteFont>("endingText");
-            teleportText = Content.Load<SpriteFont>("teleportText");
+            teleportText = Content.Load<SpriteFont>("teleportDirection");
             introInstructions = Content.Load<SpriteFont>("IntroInstructions");
             ClapSound = Content.Load<SoundEffect>("Clap");
             teleportSound = Content.Load<SoundEffect>("TeleportWav");
+            endSong = Content.Load<SoundEffect>("BatmanGameOver");
+            endInstance = endSong.CreateInstance();
+            endInstance.IsLooped = false;
             flyingSound = Content.Load<SoundEffect>("FlyingSound");
             boneCrackSound = Content.Load<SoundEffect>("BoneCrack");
             flyingSoundInstance = flyingSound.CreateInstance();
             flyingSoundInstance.IsLooped = false;
             buildingTexture = Content.Load<Texture2D>("BlackRect2");
+            manScreamSound = Content.Load<SoundEffect>("ManScream");
             //TODO: use this.Content to load your game content here
         }
 
@@ -251,7 +255,6 @@ namespace Summative_Animation
 
                 if (attackSequence && waitTime >= 1.5)
                 {                   
-
                     supermanX = 450;
                     supermanY = 320;
                     if (supermanFrame >= 10 && supermanFrame < 16)   // Scene 2    // Make it so on frame 10 it teleports to above Batman
@@ -274,6 +277,7 @@ namespace Summative_Animation
                             ending = true;
                             waitTimeStamp = (float)gameTime.TotalGameTime.TotalSeconds;
                             supermanFrame++;
+                            manScreamSound.Play();
                         }
                     }              
                 }
@@ -286,8 +290,20 @@ namespace Summative_Animation
             }
             else if (screen == Screen.Ending)
             {
+                endInstance.Play();
+
+                if (endInstance.State == SoundState.Stopped)
+                {
+                    Exit();
+                }
 
 
+                if (keyboardState.IsKeyDown(Keys.Space))
+                {
+                    endInstance.Stop();
+                    Exit();
+                   
+                }
             }
 
 
@@ -358,7 +374,9 @@ namespace Summative_Animation
             else if (screen == Screen.Ending)
             {
                 _spriteBatch.Draw(endingTexture, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
-                _spriteBatch.DrawString(endingText, "The Batman is Dead", new Vector2(300, 170), Color.DarkGray);
+                _spriteBatch.DrawString(endingText, "The Batman is Dead", new Vector2(10, 10), Color.LightBlue);
+                _spriteBatch.DrawString(endingText, "Created by Raihan C", new Vector2(10, 70), Color.Orange);
+                _spriteBatch.DrawString(endingText, "Press 'Space' to Quit", new Vector2(10, 130), Color.DarkGreen);
             }
 
             _spriteBatch.End();
